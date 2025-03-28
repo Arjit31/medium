@@ -8,8 +8,8 @@ type Bindings = {
 }
 const app = new Hono<{ Bindings: Bindings }>()
 
-app.route('//api/v1/user', userRoute);
-app.route('//api/v1/blog', blogRoute);
+app.route('/api/v1/user', userRoute);
+app.route('/api/v1/blog', blogRoute);
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
