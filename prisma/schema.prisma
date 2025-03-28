@@ -18,13 +18,13 @@ model User {
   username String  @unique
   password String
   name     String?
-  posts    Post[]
+  posts    Blog[]
 }
 
-model Post {
+model Blog {
   id        String  @id @default(uuid())
   title     String
-  Content   String
+  content   String
   published Boolean @default(false)
   author    User    @relation(fields: [authorId], references: [id])
   authorId  String
