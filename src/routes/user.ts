@@ -47,10 +47,10 @@ userRoute.post('/signup', async (c) => {
   userRoute.post('/signin', async (c) => {
     
     const body = await c.req.json();
-    const { success } = signinInput.safeParse(body);
+    const { success, error } = signinInput.safeParse(body);
     if (!success) {
       c.status(400);
-      return c.json({ error: "invalid input" });
+      return c.json({ error: "invalid input",  err: error});
     }
   
     try {

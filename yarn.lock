@@ -5,12 +5,12 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@arjit31/medium-common-module@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@arjit31/medium-common-module@npm:1.0.0"
+"@arjit31/medium-common-module@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@arjit31/medium-common-module@npm:1.0.2"
   dependencies:
     zod: "npm:^3.24.2"
-  checksum: 10c0/7c852e9d60c012cb485a3b88b72dd891cb9a6283a72808e23cd8d55dbbcaa47a8d16d458a5d6baa01019e0b4bc18ae19039bb9ea67e8a0cf7dda2b5feaeedd32
+  checksum: 10c0/1956d1df4b30c2f193e6b9566982594e963f00d91292439cf0d11085bfe04b8ce0cf177462972dc4d4a599a33a3112afaf41557482cf818074ea64ace93f53c7
   languageName: node
   linkType: hard
 
@@ -1616,7 +1616,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "my-app@workspace:."
   dependencies:
-    "@arjit31/medium-common-module": "npm:^1.0.0"
+    "@arjit31/medium-common-module": "npm:^1.0.2"
     "@cloudflare/workers-types": "npm:^4.20250214.0"
     "@prisma/client": "npm:^6.5.0"
     "@prisma/extension-accelerate": "npm:^1.3.0"
