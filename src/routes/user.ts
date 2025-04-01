@@ -4,12 +4,24 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import bcrypt from 'bcrypt-edge';
 import { decode, sign, verify } from 'hono/jwt'
 import { signinInput, signupInput } from '@arjit31/medium-common-module'
+import { auth } from '../middleware/auth';
 
 type Bindings = {
-    DATABASE_URL: string
-    SECRET_KEY: string
+  DATABASE_URL: string
+  SECRET_KEY: string
 }
-export const userRoute = new Hono<{ Bindings: Bindings }>()
+
+type Variables = {
+  userId: any
+}
+
+export const userRoute = new Hono<{ Bindings: Bindings, Variables: Variables }>()
+
+
+
+userRoute.use('/user/*', async(c, next) =>{
+    await auth(c, next);
+})
 
 userRoute.post('/signup', async (c) => {
 
@@ -74,4 +86,25 @@ userRoute.post('/signup', async (c) => {
     } catch (error) {
       return c.json({error}, 500);
     }
+  })
+
+  userRoute.get("/user", async (c) => {
+    const userId = c.get('userId')
+    try {
+      const prisma = new PrismaClient({
+          datasourceUrl: c.env.DATABASE_URL,
+      }).$extends(withAccelerate());
+      const user = await prisma.user.findUnique({
+          where: {
+              id: userId
+          }
+      })
+      if (!user || user.id != userId) {
+          return c.json("Wrong input!", 401);
+      }
+      return c.json(user);
+  } catch (error) {
+      return c.json({ error }, 500)
+  }
+
   })

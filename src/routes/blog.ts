@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { decode, sign, verify } from 'hono/jwt'
 import { createPostInput, updatePostInput } from '@arjit31/medium-common-module'
+import { auth } from '../middleware/auth'
 
 type Bindings = {
     DATABASE_URL: string
@@ -15,25 +16,8 @@ type Variables = {
 
 export const blogRoute = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 
-
-
-blogRoute.use('/*', async (c, next) => {
-    console.log("Middleware reached for path:", c.req.path);
-    console.log("Headers:", c.req.header);
-    let rawToken = c.req.header("Authorization");
-    console.log(rawToken);
-    if (!rawToken) {
-        return c.json("unauthorized!", 401);
-    }
-    const token = rawToken.split(' ')[1];
-    const payload = await verify(token, c.env.SECRET_KEY);
-    if (!payload) {
-        return c.json("unauthorized!", 401);
-    }
-    // const payload = await decode(token);
-    c.set('userId', payload.id);
-    console.log(payload);
-    await next();
+blogRoute.use('/*', async(c, next) =>{
+    await auth(c, next);
 })
 
 
@@ -109,7 +93,20 @@ blogRoute.get('/bulk', async (c) => {
         const prisma = new PrismaClient({
             datasourceUrl: c.env.DATABASE_URL,
         }).$extends(withAccelerate());
-        const blog = await prisma.blog.findMany({});
+        const blog = await prisma.blog.findMany({
+            orderBy: [
+                {
+                    updatedAt: 'desc',
+                },
+            ],
+            include: {
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
         return c.json(blog);
     } catch (error) {
         return c.json({ error }, 500)
@@ -125,6 +122,13 @@ blogRoute.get('/:id', async (c) => {
         const blog = await prisma.blog.findUnique({
             where: {
                 id: id
+            },
+            include: {
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         })
         if (!blog || blog.authorId != userId) {
