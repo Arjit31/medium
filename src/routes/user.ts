@@ -45,9 +45,10 @@ userRoute.post('/signup', async (c) => {
           username: body.username
         }
       })
-      const token = await sign({id: user.id}, c.env.SECRET_KEY);
+      const token = await sign({id: user.id, iat: Math.floor(Date.now() / 1000)}, c.env.SECRET_KEY);
       console.log(user);
-      return c.json({user, token});
+      const {password, ...userWithoutPassword} = user;
+      return c.json({user: userWithoutPassword, token});
     }
     catch (error) {
       console.log(error);
@@ -82,7 +83,8 @@ userRoute.post('/signup', async (c) => {
         return c.json("Wrong password", 401);
       }
       const token = await sign({id: user.id, iat: Math.floor(Date.now() / 1000)}, c.env.SECRET_KEY);
-      return c.json(token);
+      const {password, ...userWithoutPassword} = user;
+      return c.json({user: userWithoutPassword, token});
     } catch (error) {
       return c.json({error}, 500);
     }
@@ -102,7 +104,8 @@ userRoute.post('/signup', async (c) => {
       if (!user || user.id != userId) {
           return c.json("Wrong input!", 401);
       }
-      return c.json(user);
+      const {password, ...userWithoutPassword} = user;
+      return c.json({user: userWithoutPassword});
   } catch (error) {
       return c.json({ error }, 500)
   }

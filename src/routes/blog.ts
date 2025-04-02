@@ -71,7 +71,7 @@ blogRoute.put('/:id', async (c) => {
         if (!blog || blog.authorId != userId) {
             return c.json("Wrong input!", 401);
         }
-        const updatedBlog = prisma.blog.update({
+        const updatedBlog = await prisma.blog.update({
             where: {
                 id: id
             },
@@ -85,6 +85,35 @@ blogRoute.put('/:id', async (c) => {
         return c.json({ error }, 500)
     }
 })
+
+blogRoute.delete('/:id', async (c) => {
+    const userId = c.get('userId')
+    const id = c.req.param('id')
+
+    try {
+        const prisma = new PrismaClient({
+            datasourceUrl: c.env.DATABASE_URL,
+        }).$extends(withAccelerate());
+
+        const blog = await prisma.blog.findUnique({
+            where: {
+                id: id
+            }
+        })
+        if (!blog || blog.authorId != userId) {
+            return c.json("Unauthorized!", 401);
+        }
+        const deletedPost = await prisma.blog.delete({
+            where: {
+                id: id
+            }
+        })
+        return c.json(deletedPost)
+    } catch (error) {
+        return c.json({ error }, 500)
+    }
+})
+
 blogRoute.get('/test', (c) => c.json({ message: "Test route works!" }));
 
 blogRoute.get('/bulk', async (c) => {
@@ -131,9 +160,6 @@ blogRoute.get('/:id', async (c) => {
                 }
             }
         })
-        if (!blog || blog.authorId != userId) {
-            return c.json("Wrong input!", 401);
-        }
         return c.json(blog);
     } catch (error) {
         return c.json({ error }, 500)
